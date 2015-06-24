@@ -19,18 +19,42 @@ class Evans_Movie {
 	 * Create the custom post type.
 	 */
 	function create_cpt() {
-		// create custom post type for "movie"
-		$args = array(
-			'public' => true,
-			'labels' => array(
-				'name'			=> __('Movies'),
-				'singular_name'	=> __('Movie'),
-			),
-			'has_archive'	=> true,
-			'rewrite'		=> array('slug' => 'movies'),
-			'supports' => array('title','editor','thumbnail','comments'),
+		$labels = array(
+			'name'                => _x( 'Movie', 'Post Type General Name', 'evans-cpt' ),
+			'singular_name'       => _x( 'Movie', 'Post Type Singular Name', 'evans-cpt' ),
+			'menu_name'           => __( 'Movie', 'evans-cpt' ),
+			'name_admin_bar'      => __( 'Movie', 'evans-cpt' ),
+			'parent_item_colon'   => __( 'Parent Item:', 'evans-cpt' ),
+			'all_items'           => __( 'All Movies', 'evans-cpt' ),
+			'add_new_item'        => __( 'Add New Movie', 'evans-cpt' ),
+			'add_new'             => __( 'Add New', 'evans-cpt' ),
+			'new_item'            => __( 'New Movie', 'evans-cpt' ),
+			'edit_item'           => __( 'Edit Movie', 'evans-cpt' ),
+			'update_item'         => __( 'Update Movie', 'evans-cpt' ),
+			'view_item'           => __( 'View Movie', 'evans-cpt' ),
+			'search_items'        => __( 'Search Movies', 'evans-cpt' ),
+			'not_found'           => __( 'Not found', 'evans-cpt' ),
+			'not_found_in_trash'  => __( 'Not found in Trash', 'evans-cpt' ),
 		);
-		register_post_type( self::POST_TYPE, $args );
+		$args = array(
+			'label'               => __( 'Movies', 'evans-cpt' ),
+			'description'         => __( 'Movies', 'evans-cpt' ),
+			'labels'              => $labels,
+			'supports'            => array( ),
+			'hierarchical'        => false,
+			'public'              => true,
+			'show_ui'             => true,
+			'show_in_menu'        => true,
+			'menu_position'       => 5,
+			'show_in_admin_bar'   => true,	
+			'show_in_nav_menus'   => true,
+			'can_export'          => true,
+			'has_archive'         => true,
+			'exclude_from_search' => false,
+			'publicly_queryable'  => true,
+			'capability_type'     => 'page',
+		);
+		register_post_type( 'evans_movie', $args );
 	}
 
 	function cmb_init() {
