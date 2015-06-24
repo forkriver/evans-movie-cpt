@@ -14,9 +14,28 @@
 require_once( 'class-evans-movie.php' );
 
 /**
- * @todo Activation & deactivation hooks that flush rewrite rules
+ * Create CPT and flush the rewrite rules.
+ */
+function evmc_plugin_turn_on() {
+	Evans_Movie::create_cpt();
+	flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, 'evmc_plugin_turn_on' );
+
+/**
+ * Clear out the CPT from the rewrite rules.
+ */
+function evmc_plugin_turn_off() {
+	flush_rewrite_rules();
+}
+register_deactivation_hook( __FILE__, 'evmc_plugin_turn_off' );
+
+/**
  * @todo Rotten Tomatoes API key (admin pages)
  * @todo TheMovieDB API key (admin pages)
  */
 
+/**
+ * Instantiate the class, yo
+ */
 new Evans_Movie();
