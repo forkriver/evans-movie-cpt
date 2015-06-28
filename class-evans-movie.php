@@ -40,7 +40,7 @@ class Evans_Movie {
 			'label'               => __( 'Movies', 'evans-cpt' ),
 			'description'         => __( 'Movies', 'evans-cpt' ),
 			'labels'              => $labels,
-			'supports'            => array( ),
+			'supports'            => array( 'title', 'editor', 'thumbnail' ),
 			'hierarchical'        => false,
 			'public'              => true,
 			'show_ui'             => true,
