@@ -23,7 +23,8 @@ class Evans_Movie {
 
 		add_filter( 'cmb_meta_boxes', array( $this, 'metaboxes' ) );
 
-		// Filter the front page content 
+		// Filters for the front page
+		add_filter( 'the_title', array( $this, 'front_page_title' ) );
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
 	}
 
@@ -168,6 +169,24 @@ class Evans_Movie {
 	}
 
 	/**
+	 * Filter the title on the front page.
+	 * @param string $the_title
+	 * @return string The filtered title.
+	 * @todo Fix the way that it affects EVERY title -- including menu items.
+	 */
+	function front_page_title( $title ) {
+		if( is_front_page() ) {
+			$movie = $this->get_next_movie();
+			if( $movie->have_posts() ) {
+				// this doesn't work -- changes ALL titles (including the menu items)
+				// $title = $movie->posts[0]->post_title;
+			}
+		}
+
+		return $title;
+	}
+
+	/**
 	 * Filter the front page to display the next upcoming movie.
 	 * @param string $content
 	 * @return string The filtered content.
@@ -176,38 +195,49 @@ class Evans_Movie {
 	function front_page_content( $content ) {
 
 		if( is_front_page() ) {
-			$now = time();
 
-			// get the next upcoming movie
-			$args = array(
-				'posts_per_page' => 1,
-				'post_type' => Evans_Movie::POST_TYPE,
-
-				// sort by the showtime meta value
-				'orderby' => 'meta_value_num',
-				'order' => 'ASC',
-				'meta_key' => Evans_Movie::PREFIX . 'showtime',
-
-				// make sure we're getting only future showtimes
-				'meta_query' => array(
-					'key' => Evans_Movie::PREFIX . 'showtime',
-					'type' => 'NUMERIC',
-					'value' => $now,
-					'compare' => '>=',
-				),
-			);
-			$movie = new WP_Query( $args );
+			$movie = $this->get_next_movie();
 
 			if( $movie->have_posts() ) {
 				$movie->the_post();
 				$content = '';
-				$content .= get_the_title();
+				$content .= get_the_post_thumbnail();
+				$content .= wpautop( get_the_content() );
 			}
-			
 
 		}
 
 		return $content;
+	}
+
+	public static function get_next_movie( $time = null ) {
+
+		if( ! is_numeric( $time ) ) {
+			$time = time();
+		}
+
+		// get the next upcoming movie
+		$args = array(
+			'posts_per_page' => 1,
+			'post_type' => Evans_Movie::POST_TYPE,
+
+			// sort by the showtime meta value
+			'orderby' => 'meta_value_num',
+			'order' => 'ASC',
+			'meta_key' => Evans_Movie::PREFIX . 'showtime',
+
+			// make sure we're getting only future showtimes
+			'meta_query' => array(
+				'key' => Evans_Movie::PREFIX . 'showtime',
+				'type' => 'NUMERIC',
+				'value' => $time,
+				'compare' => '>=',
+			),
+		);
+		$movie = new WP_Query( $args );
+
+		return $movie;
+
 	}
 
 	/**
