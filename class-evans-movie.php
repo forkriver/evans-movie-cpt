@@ -5,9 +5,15 @@
  */
 class Evans_Movie {
 
+	/**
+	 * Set the constants.
+	 */
 	const POST_TYPE = 'evans_movie';
 	const PREFIX = '_evans_';
 
+	/**
+	 * Create the class.
+	 */
 	function __construct() {
 		add_action( 'init', array( $this, 'create_cpt' ) );
 		add_action( 'init', array( $this, 'cmb_init' ), PHP_INT_MAX );
@@ -63,12 +69,20 @@ class Evans_Movie {
 		register_post_type( 'evans_movie', $args );
 	}
 
+	/**
+	 * Initialize the CMBs.
+	 */
 	function cmb_init() {
 		if( ! class_exists( 'CMB_Meta_Box' ) ) {
 			require_once( 'lib/custom-meta-boxes/custom-meta-boxes.php' );
 		}
 	}
 
+	/**
+	 * Add metaboxes to the POST_TYPE
+	 * @param array $metaboxes
+	 * @return array $metaboxes
+	 */
 	function metaboxes( $metaboxes = array() ) {
 		$prefix = self::PREFIX;
 
@@ -122,6 +136,9 @@ class Evans_Movie {
 
 	}
 
+	/**
+	 * Switch any showtimes to time() format.
+	 */
 	function fix_showtimes() {
 		$already_done = get_option( Evans_Movie::PREFIX . 'dates_fixed' );
 		if( $already_done ) {
@@ -150,6 +167,12 @@ class Evans_Movie {
 
 	}
 
+	/**
+	 * Filter the front page to display the next upcoming movie.
+	 * @param string $content
+	 * @return string The filtered content.
+	 * @todo Generate content when there are no upcoming movies (eg, summer or Xmas break).
+	 */
 	function front_page_content( $content ) {
 
 		if( is_front_page() ) {
@@ -187,6 +210,11 @@ class Evans_Movie {
 		return $content;
 	}
 
+	/**
+	 * Pick the appropriate template.
+	 * @param string(?) $template
+	 * @return string $template
+	 */
 	function template_selector( $template ) {
 		if( is_singular( self::POST_TYPE ) ) {
 			$template = plugin_dir_path( __FILE__ ) . 'templates/single-' . self::POST_TYPE . '.php';
