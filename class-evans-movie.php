@@ -11,8 +11,14 @@ class Evans_Movie {
 	function __construct() {
 		add_action( 'init', array( $this, 'create_cpt' ) );
 		add_action( 'init', array( $this, 'cmb_init' ), PHP_INT_MAX );
+		add_action( 'init', array( $this, 'fix_showtimes' ) );
+
+		add_filter( 'template_include', array( $this, 'template_selector' ) );
 
 		add_filter( 'cmb_meta_boxes', array( $this, 'metaboxes' ) );
+
+		// Filter the front page content 
+		add_filter( 'the_content', array( $this, 'front_page_content' ) );
 	}
 
 	/**
@@ -68,13 +74,13 @@ class Evans_Movie {
 
 		$url_group = array(
 			array(
-				'id' => 'url',
+				'id' => $prefix . 'url',
 				'name' => __( 'URL', 'evans-cpt' ),
 				'type' => 'text_url',
 				'cols' => 6,
 			),
 			array( 
-				'id' => 'url_name',
+				'id' => $prefix . 'url_name',
 				'name' => __( 'Link text', 'evans-cpt' ),
 				'type' => 'text',
 				'cols' => 6,
@@ -84,7 +90,7 @@ class Evans_Movie {
 		$fields = array(
 			// Showtime(s)
 			array(
-				'id' => 'showtime',
+				'id' => $prefix . 'showtime',
 				'name' => __( 'Showtimes', 'evans-cpt' ),
 				'type' => 'datetime_unix',
 				'repeatable' => true,
@@ -94,7 +100,7 @@ class Evans_Movie {
 
 			// URL group (official, IMDB, ... )
 			array(
-				'id' => 'url',
+				'id' => $prefix . 'url',
 				'name' => __( 'URL(s)', 'evans-cpt' ),
 				'type' => 'group',
 				'fields' => $url_group,
@@ -114,6 +120,78 @@ class Evans_Movie {
 
 		return $metaboxes;
 
+	}
+
+	function fix_showtimes() {
+		$already_done = get_option( Evans_Movie::PREFIX . 'dates_fixed' );
+		if( $already_done ) {
+			return;
+		}
+		$args = array(
+			'numberposts' => -1,
+			'post_type' => Evans_Movie::POST_TYPE,
+			);
+		$movies = get_posts( $args );
+		if ( $movies && is_array( $movies ) ) {
+			foreach( $movies as $movie ) {
+				$showtimes = get_post_meta( $movie->ID, Evans_Movie::PREFIX . 'showtime' );
+				$new = array();
+				foreach( $showtimes as $s ) {
+					if( ! is_numeric( $s ) ) {
+						$new[] = strtotime( $s );
+					}
+				}
+				if( ! empty( $new ) ) {
+					update_post_meta( $movie->ID, Evans_Movie::PREFIX . 'showtime', $new );
+				}
+			}
+		}
+		update_option( Evans_Movie::PREFIX . 'dates_fixed', time() );
+
+	}
+
+	function front_page_content( $content ) {
+
+		if( is_front_page() ) {
+			$now = time();
+
+			// get the next upcoming movie
+			$args = array(
+				'posts_per_page' => 1,
+				'post_type' => Evans_Movie::POST_TYPE,
+
+				// sort by the showtime meta value
+				'orderby' => 'meta_value_num',
+				'order' => 'ASC',
+				'meta_key' => Evans_Movie::PREFIX . 'showtime',
+
+				// make sure we're getting only future showtimes
+				'meta_query' => array(
+					'key' => Evans_Movie::PREFIX . 'showtime',
+					'type' => 'NUMERIC',
+					'value' => $now,
+					'compare' => '>=',
+				),
+			);
+			$movie = new WP_Query( $args );
+
+			if( $movie->have_posts() ) {
+				$movie->the_post();
+				$content = '';
+				$content .= get_the_title();
+			}
+			
+
+		}
+
+		return $content;
+	}
+
+	function template_selector( $template ) {
+		if( is_singular( self::POST_TYPE ) ) {
+			$template = plugin_dir_path( __FILE__ ) . 'templates/single-' . self::POST_TYPE . '.php';
+		}
+		return $template;
 	}
 	
 }
