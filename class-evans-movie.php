@@ -24,7 +24,6 @@ class Evans_Movie {
 		add_filter( 'cmb_meta_boxes', array( $this, 'metaboxes' ) );
 
 		// Filters for the front page
-		add_filter( 'the_title', array( $this, 'front_page_title' ) );
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
 	}
 
@@ -166,24 +165,6 @@ class Evans_Movie {
 		}
 		update_option( Evans_Movie::PREFIX . 'dates_fixed', time() );
 
-	}
-
-	/**
-	 * Filter the title on the front page.
-	 * @param string $the_title
-	 * @return string The filtered title.
-	 * @todo Fix the way that it affects EVERY title -- including menu items.
-	 */
-	function front_page_title( $title ) {
-		if( is_front_page() ) {
-			$movie = $this->get_next_movie();
-			if( $movie->have_posts() ) {
-				// this doesn't work -- changes ALL titles (including the menu items)
-				// $title = $movie->posts[0]->post_title;
-			}
-		}
-
-		return $title;
 	}
 
 	/**
