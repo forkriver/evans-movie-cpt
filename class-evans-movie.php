@@ -19,7 +19,11 @@ class Evans_Movie {
 		add_action( 'init', array( $this, 'cmb_init' ), PHP_INT_MAX );
 		add_action( 'init', array( $this, 'fix_showtimes' ) );
 
-		add_filter( 'template_include', array( $this, 'template_selector' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'front_page_css' ), 20 );
+
+		add_action( 'after_setup_theme', array( $this, 'featured_image_size' ) );
+
+		// add_filter( 'template_include', array( $this, 'template_selector' ) );
 
 		add_filter( 'cmb_meta_boxes', array( $this, 'metaboxes' ) );
 
@@ -66,7 +70,14 @@ class Evans_Movie {
 			'publicly_queryable'  => true,
 			'capability_type'     => 'page',
 		);
-		register_post_type( 'evans_movie', $args );
+		register_post_type( self::POST_TYPE, $args );
+
+	}
+
+	function featured_image_size() {
+		// Register the post_thumbnail size for the hero image.
+		$no_crop = false;	// More semantically useful
+		add_image_size( self::POST_TYPE . '_hero', 960, 9999, $no_crop );
 	}
 
 	/**
@@ -168,6 +179,32 @@ class Evans_Movie {
 	}
 
 	/**
+	 * Use the front page's image as a background
+	 */
+	function front_page_css() {
+		if( is_front_page() ) {
+			$movie = $this->get_next_movie();
+			if( $movie->have_posts() ) {
+				$movie->the_post();
+				$bg_id = get_post_thumbnail_id( get_the_ID() );
+				if( $bg_id && is_numeric( $bg_id ) ) {
+					// get the image and add it to the CSS as a background
+					$image = wp_get_attachment_image_src( $bg_id, self::POST_TYPE . '_hero');
+					$css = '.movie { 
+						background: url( ' . $image[0] . ') no-repeat; 
+						height: ' . $image[2] . 'px;
+						width: ' . $image[1] . 'px; 
+						max-width: 100%;
+					}';
+
+					wp_add_inline_style( 'evans-2015-style', $css );
+				}
+			}
+		}
+
+	}
+
+	/**
 	 * Filter the front page to display the next upcoming movie.
 	 * @param string $content
 	 * @return string The filtered content.
@@ -182,8 +219,30 @@ class Evans_Movie {
 			if( $movie->have_posts() ) {
 				$movie->the_post();
 				$content = '';
-				$content .= get_the_post_thumbnail();
-				$content .= wpautop( get_the_content() );
+				$content .= '<div class="movie">' . PHP_EOL;
+				$content .= '<div class="big-pic">' . PHP_EOL;
+				// $content .= get_the_post_thumbnail( get_the_ID(), self::POST_TYPE . '_hero' );
+				// set the image as a background with CSS in the front_page_css action
+				$content .= '</div><!--.big-pic -->' . PHP_EOL;
+				$content .= '<div class="showtimes">' . PHP_EOL;
+				$content .= '<h1 class="movie-title"><a href="' . get_the_permalink( get_the_ID() ) . '">' . get_the_title() . '</a></h1>'. PHP_EOL;
+				$times = get_post_meta( get_the_ID(), self::PREFIX . 'showtime' );
+				if( $times ) {
+					// Let's just make sure they're in the right order
+					sort( $times );
+					$content .= '<p class="times">' . PHP_EOL;
+					foreach( $times as $time ) {
+						$content .= date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $time );
+						if( $time != end( $times ) ) {
+							$content .= ' | ';
+						}
+					}
+					$content .= '</p><!-- .times -->' . PHP_EOL;
+				}
+
+				$content .= '</div><!-- .showtimes -->' . PHP_EOL;
+
+				$content .= '</div><!-- .movie -->' . PHP_EOL;
 			}
 
 		}
