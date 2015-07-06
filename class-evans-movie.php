@@ -35,6 +35,10 @@ class Evans_Movie {
 	 * Create the custom post type.
 	 */
 	function create_cpt() {
+
+		$rewrite = array(
+			'slug' => 'movie',
+			);
 		$labels = array(
 			'name'                => _x( 'Movie', 'Post Type General Name', 'evans-cpt' ),
 			'singular_name'       => _x( 'Movie', 'Post Type Singular Name', 'evans-cpt' ),
@@ -69,6 +73,7 @@ class Evans_Movie {
 			'exclude_from_search' => false,
 			'publicly_queryable'  => true,
 			'capability_type'     => 'page',
+			'rewrite'             => $rewrite,
 		);
 		register_post_type( self::POST_TYPE, $args );
 
@@ -220,10 +225,7 @@ class Evans_Movie {
 				$movie->the_post();
 				$content = '';
 				$content .= '<div class="movie">' . PHP_EOL;
-				$content .= '<div class="big-pic">' . PHP_EOL;
-				// $content .= get_the_post_thumbnail( get_the_ID(), self::POST_TYPE . '_hero' );
-				// set the image as a background with CSS in the front_page_css action
-				$content .= '</div><!--.big-pic -->' . PHP_EOL;
+
 				$content .= '<div class="showtimes">' . PHP_EOL;
 				$content .= '<h1 class="movie-title"><a href="' . get_the_permalink( get_the_ID() ) . '">' . get_the_title() . '</a></h1>'. PHP_EOL;
 				$times = get_post_meta( get_the_ID(), self::PREFIX . 'showtime' );
@@ -238,11 +240,53 @@ class Evans_Movie {
 						}
 					}
 					$content .= '</p><!-- .times -->' . PHP_EOL;
+					$last_show = end( $times );
+				}
+
+				if( ! $last_show ) {
+					$last_show = time();
 				}
 
 				$content .= '</div><!-- .showtimes -->' . PHP_EOL;
 
 				$content .= '</div><!-- .movie -->' . PHP_EOL;
+
+				// get the rest of the upcoming movies and make a list
+				$upcoming_movies = $this->get_future_movies( $last_show );
+				if( $upcoming_movies->have_posts() ) {
+					$content .= '<div class="row">' . PHP_EOL;
+					$content .= '<div class="twelve columns centered">' . PHP_EOL;
+					$content .= '<h2>Upcoming movies</h2>' . PHP_EOL;
+					$content .= '</div><!-- .twelve columns -->' . PHP_EOL;
+					$content .= '</div><!-- .row -->' . PHP_EOL;
+					$content .= '<div class="row upcoming-movies">' . PHP_EOL;
+					while( $upcoming_movies->have_posts() ) {
+						$content .= '<div class="four columns">' . PHP_EOL;
+						$upcoming_movies->the_post();
+						$content .= '<h3><a href="' . get_the_permalink() . '">';
+						$content .= get_the_title();
+						$content .= '</a></h3>' . PHP_EOL;
+						$dates = get_post_meta( get_the_ID(), self::PREFIX . 'showtime' );
+						if( $dates ) {
+							sort( $dates );
+							$content .= '<p>';
+							$content .= date( get_option( 'date_format' ), $dates[0] );
+							if( $dates[0] !== end( $dates ) ) {
+								$content .= '&ndash;';
+								$content .= date( get_option( 'date_format' ), end( $dates ) );
+							}
+							$content .= '</p>' . PHP_EOL;
+						}
+
+						$content .= '</div><!-- .four columns -->' . PHP_EOL;
+					}
+					$content .= '</div><!-- .row-->' . PHP_EOL;
+
+				}
+
+
+				wp_reset_postdata();
+
 			}
 
 		}
@@ -250,6 +294,11 @@ class Evans_Movie {
 		return $content;
 	}
 
+	/**
+	 * Get the next movie that will show
+	 * @param mixed $time A numeric time since epoch, or null value
+	 * @return WP_Query object
+	 */
 	public static function get_next_movie( $time = null ) {
 
 		if( ! is_numeric( $time ) ) {
@@ -279,7 +328,41 @@ class Evans_Movie {
 		return $movie;
 
 	}
+	
+	/**
+	 * Get the upcoming movies
+	 * @param mixed time A numeric time since epoch, or null value
+	 * @return WP_Query object
+	 */
+	public static function get_future_movies( $time = null ) {
 
+		if( ! is_numeric( $time ) ) {
+			$time = time();
+		}
+
+		// get the next upcoming movie
+		$args = array(
+			'posts_per_page' => 3,
+			'post_type' => Evans_Movie::POST_TYPE,
+
+			// sort by the showtime meta value
+			'orderby' => 'meta_value_num',
+			'order' => 'ASC',
+			'meta_key' => Evans_Movie::PREFIX . 'showtime',
+
+			// make sure we're getting only future showtimes
+			'meta_query' => array(
+				'key' => Evans_Movie::PREFIX . 'showtime',
+				'type' => 'NUMERIC',
+				'value' => $time,
+				'compare' => '>',
+			),
+		);
+		$movies = new WP_Query( $args );
+
+		return $movies;
+
+	}
 	/**
 	 * Pick the appropriate template.
 	 * @param string(?) $template
