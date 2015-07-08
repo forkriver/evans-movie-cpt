@@ -41,7 +41,7 @@ class Evans_Movie {
 			'slug' => 'movie',
 			);
 		$labels = array(
-			'name'                => _x( 'Movie', 'Post Type General Name', 'evans-cpt' ),
+			'name'                => _x( 'Movies', 'Post Type General Name', 'evans-cpt' ),
 			'singular_name'       => _x( 'Movie', 'Post Type Singular Name', 'evans-cpt' ),
 			'menu_name'           => __( 'Movie', 'evans-cpt' ),
 			'name_admin_bar'      => __( 'Movie', 'evans-cpt' ),
