@@ -35,6 +35,11 @@ register_deactivation_hook( __FILE__, 'evmc_plugin_turn_off' );
  * @todo TheMovieDB API key (admin pages)
  */
 
+// local LAMP debugging stuff
+if( file_exists(  plugin_dir_path( __FILE__ ) . 'local-stuff.php' ) ) {
+	include_once( plugin_dir_path( __FILE__ ) . 'local-stuff.php' );
+}
+
 /**
  * Instantiate the class, yo
  */

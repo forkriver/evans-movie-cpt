@@ -29,6 +29,7 @@ class Evans_Movie {
 
 		// Filters for the front page
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
+
 	}
 
 	/**
@@ -374,5 +375,5 @@ class Evans_Movie {
 		}
 		return $template;
 	}
-	
+
 }
