@@ -224,11 +224,15 @@ class Evans_Movie {
 
 			if( $movie->have_posts() ) {
 				$movie->the_post();
+				$movie_url = get_the_permalink( get_the_ID() );
 				$content = '';
 				$content .= '<div class="movie">' . PHP_EOL;
+				$content .= '<a href="' . $movie_url . '">';
+				$content .= get_the_post_thumbnail( get_the_ID(), self::POST_TYPE . '_hero' );
+				$content .= '</a>' . PHP_EOL;
 
 				$content .= '<div class="showtimes">' . PHP_EOL;
-				$content .= '<h1 class="movie-title"><a href="' . get_the_permalink( get_the_ID() ) . '">' . get_the_title() . '</a></h1>'. PHP_EOL;
+				$content .= '<h1 class="movie-title"><a href="' . $movie_url . '">' . get_the_title() . '</a></h1>'. PHP_EOL;
 				$times = get_post_meta( get_the_ID(), self::PREFIX . 'showtime' );
 				if( $times ) {
 					// Let's just make sure they're in the right order
