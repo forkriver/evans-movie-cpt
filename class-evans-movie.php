@@ -229,6 +229,9 @@ class Evans_Movie {
 				$content .= '<div class="movie">' . PHP_EOL;
 				$content .= '<a href="' . $movie_url . '">';
 				$content .= get_the_post_thumbnail( get_the_ID(), self::POST_TYPE . '_hero' );
+				/**
+				 * @todo -- remove the 'height' and 'width' from the returned <img /> tag -- fingers crossed for a filter
+				 */
 				$content .= '</a>' . PHP_EOL;
 
 				$content .= '<div class="showtimes">' . PHP_EOL;
