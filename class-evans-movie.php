@@ -21,8 +21,6 @@ class Evans_Movie {
 
 		add_action( 'after_setup_theme', array( $this, 'featured_image_size' ) );
 
-		// add_filter( 'template_include', array( $this, 'template_selector' ) );
-
 		add_filter( 'cmb_meta_boxes', array( $this, 'metaboxes' ) );
 
 		// Filters for the front page
@@ -342,17 +340,6 @@ class Evans_Movie {
 
 		return $movies;
 
-	}
-	/**
-	 * Pick the appropriate template.
-	 * @param string(?) $template
-	 * @return string $template
-	 */
-	function template_selector( $template ) {
-		if( is_singular( self::POST_TYPE ) ) {
-			$template = plugin_dir_path( __FILE__ ) . 'templates/single-' . self::POST_TYPE . '.php';
-		}
-		return $template;
 	}
 
 }
