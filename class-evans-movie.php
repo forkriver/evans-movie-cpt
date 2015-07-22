@@ -19,8 +19,6 @@ class Evans_Movie {
 		add_action( 'init', array( $this, 'cmb_init' ), PHP_INT_MAX );
 		add_action( 'init', array( $this, 'fix_showtimes' ) );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'front_page_css' ), 20 );
-
 		add_action( 'after_setup_theme', array( $this, 'featured_image_size' ) );
 
 		// add_filter( 'template_include', array( $this, 'template_selector' ) );
@@ -181,32 +179,6 @@ class Evans_Movie {
 			}
 		}
 		update_option( Evans_Movie::PREFIX . 'dates_fixed', time() );
-
-	}
-
-	/**
-	 * Use the front page's image as a background
-	 */
-	function front_page_css() {
-		if( is_front_page() ) {
-			$movie = $this->get_next_movie();
-			if( $movie->have_posts() ) {
-				$movie->the_post();
-				$bg_id = get_post_thumbnail_id( get_the_ID() );
-				if( $bg_id && is_numeric( $bg_id ) ) {
-					// get the image and add it to the CSS as a background
-					$image = wp_get_attachment_image_src( $bg_id, self::POST_TYPE . '_hero');
-					$css = '.movie { 
-						background: url( ' . $image[0] . ') no-repeat; 
-						height: ' . $image[2] . 'px;
-						width: ' . $image[1] . 'px; 
-						max-width: 100%;
-					}';
-
-					wp_add_inline_style( 'evans-2015-style', $css );
-				}
-			}
-		}
 
 	}
 
