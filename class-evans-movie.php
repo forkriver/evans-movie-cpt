@@ -26,6 +26,14 @@ class Evans_Movie {
 		// Filters for the front page
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
 
+		/**
+		 * Rewrite stuff
+		 */
+		add_action( 'init', array( $this, 'add_rewrites' ) );
+		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
+
+		add_filter( 'template_include', array( $this, 'template_selector' ) );
+
 	}
 
 	/**
@@ -273,6 +281,34 @@ class Evans_Movie {
 	}
 
 	/**
+	 * Add the rewrite rule(s) that we want.
+	 */
+	public static function add_rewrites() {
+		add_rewrite_rule( '^movies/?$', 'index.php?upcoming_movies=true', 'top' );
+		flush_rewrite_rules(); // REMOVE BEFORE FLIGHT
+	}
+
+	/**
+	 * Add the query var(s) that we want.
+	 * @param array Query variables.
+	 * @return array The filtered query variables.
+	 */
+	public static function add_query_vars( $vars ) {
+		$vars[] = 'upcoming_movies';
+		return $vars;
+	}
+
+	/**
+	 * Select the appropriate template.
+	 */
+	function template_selector( $template ) {
+		if ( get_query_var( 'upcoming_movies' ) ) {
+			$template = plugin_dir_path( __FILE__ ) . '/templates/page-upcoming.php';
+		}
+		return $template;
+	}
+
+	/**
 	 * Get the next movie that will show
 	 * @param mixed $time A numeric time since epoch, or null value
 	 * @return WP_Query object
@@ -312,7 +348,7 @@ class Evans_Movie {
 	 * @param mixed time A numeric time since epoch, or null value
 	 * @return WP_Query object
 	 */
-	public static function get_future_movies( $time = null ) {
+	public static function get_future_movies( $number_of_movies = 3, $time = null ) {
 
 		if( ! is_numeric( $time ) ) {
 			$time = time();
@@ -320,7 +356,7 @@ class Evans_Movie {
 
 		// get the next upcoming movie
 		$args = array(
-			'posts_per_page' => 3,
+			'posts_per_page' => $number_of_movies,
 			'post_type' => Evans_Movie::POST_TYPE,
 
 			// sort by the showtime meta value
