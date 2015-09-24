@@ -200,6 +200,10 @@ class Evans_Movie {
 
 			$movie = $this->get_next_movie();
 
+			if( current_user_can( 'update_core' ) ) {
+				_dump( $movie );
+			}
+
 			if( $movie->have_posts() ) {
 				$movie->the_post();
 				$movie_url = get_the_permalink( get_the_ID() );
