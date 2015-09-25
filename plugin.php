@@ -40,6 +40,21 @@ if( file_exists(  plugin_dir_path( __FILE__ ) . 'local-stuff.php' ) ) {
 	include_once( plugin_dir_path( __FILE__ ) . 'local-stuff.php' );
 }
 
+if( ! function_exists( '_dump' ) ) :
+	function _dump( $x ) {
+		if ( ! current_user_can( 'update_core' ) ) {
+			return;
+		}
+		echo( '<pre>' . PHP_EOL );
+		if( is_object( $x ) || is_array( $x ) ) {
+			print_r( $x );
+		} else {
+			echo( $x );
+		}
+		echo( '</pre>' . PHP_EOL );
+	}
+endif;	// ! function_exists( '_dump' )
+
 /**
  * Instantiate the class, yo
  */

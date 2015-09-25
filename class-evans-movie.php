@@ -200,10 +200,6 @@ class Evans_Movie {
 
 			$movie = $this->get_next_movie();
 
-			if( current_user_can( 'update_core' ) ) {
-				_dump( $movie );
-			}
-
 			if( $movie->have_posts() ) {
 				$movie->the_post();
 				$movie_url = get_the_permalink( get_the_ID() );
@@ -242,7 +238,7 @@ class Evans_Movie {
 				$content .= '</div><!-- .movie -->' . PHP_EOL;
 
 				// get the rest of the upcoming movies and make a list
-				$upcoming_movies = $this->get_future_movies( $last_show );
+				$upcoming_movies = $this->get_future_movies();
 				if( $upcoming_movies->have_posts() ) {
 					$content .= '<div class="row">' . PHP_EOL;
 					$content .= '<div class="twelve columns centered">' . PHP_EOL;
