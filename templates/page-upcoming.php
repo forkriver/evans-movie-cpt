@@ -8,7 +8,7 @@ get_header();
 
 echo( '<h1>Upcoming Movies</h1>' . PHP_EOL );
 
-$movies = Evans_Movie::get_future_movies( -1 );
+$movies = Evans_Movie::get_future_movies( time(), -1 );
 if( $movies->have_posts() ) {
 	$thumbnail_attrs = array(
 		'align' => 'left',

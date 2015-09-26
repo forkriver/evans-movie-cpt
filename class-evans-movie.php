@@ -285,7 +285,6 @@ class Evans_Movie {
 	 */
 	public static function add_rewrites() {
 		add_rewrite_rule( '^movies/?$', 'index.php?upcoming_movies=true', 'top' );
-		flush_rewrite_rules(); // REMOVE BEFORE FLIGHT
 	}
 
 	/**
