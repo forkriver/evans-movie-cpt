@@ -290,8 +290,12 @@ class Evans_Movie {
 				$content .= '<h3>See Also</h3>' . PHP_EOL;
 				$content .= '<p>' . PHP_EOL;
 				foreach( $urls as $url ) {
+					$url_name = $url[ self::PREFIX . 'url_name' ];
+					if( 'official site' === strtolower( $url_name ) ) {
+						$url_name = '<em>' . $post->post_title . '</em> ' . $url_name;
+					}
 					$content .= '<a href="' . $url[ self::PREFIX . 'url' ] . '" target="_new">';
-					$content .= $url[ self::PREFIX . 'url_name' ];
+					$content .= $url_name;
 					$content .= '</a><br />' . PHP_EOL;
 				}
 				$content .= '</p>' . PHP_EOL;
