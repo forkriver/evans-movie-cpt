@@ -348,10 +348,16 @@ class Evans_Movie {
 	 * @param mixed time A numeric time since epoch, or null value
 	 * @return WP_Query object
 	 */
-	public static function get_future_movies( $number_of_movies = 3, $time = null ) {
+	public static function get_future_movies( $time = null, $number_of_movies = 3 ) {
 
 		if( ! is_numeric( $time ) ) {
 			$time = time();
+		}
+
+		// get the next movie (displayed in the big box) if we're on the front page
+		if( is_front_page() ) {
+			$hero_movie = self::get_next_movie();
+			$exclude_id = $hero_movie->posts[0]->ID;
 		}
 
 		// get the next upcoming movie
@@ -370,8 +376,11 @@ class Evans_Movie {
 				'type' => 'NUMERIC',
 				'value' => $time,
 				'compare' => '>',
-			),
+			),	
 		);
+		if( isset( $exclude_id ) && is_numeric( $exclude_id ) ) {
+			$args['post__not_in'] = array( $exclude_id );
+		}
 		$movies = new WP_Query( $args );
 
 		return $movies;
