@@ -25,6 +25,7 @@ class Evans_Movie {
 
 		// Filters for the front page
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
+		add_filter( 'the_content', array( $this, 'single_movie_meta' ) );
 
 		/**
 		 * Rewrite stuff
@@ -277,6 +278,25 @@ class Evans_Movie {
 
 		}
 
+		return $content;
+	}
+
+	function single_movie_meta( $content ) {
+		if( is_singular( self::POST_TYPE ) ) {
+			global $post;
+			// get the URLs
+			$urls = get_post_meta( $post->ID, self::PREFIX . 'url' );
+			if( $urls ) {
+				$content .= '<h3>See Also</h3>' . PHP_EOL;
+				$content .= '<p>' . PHP_EOL;
+				foreach( $urls as $url ) {
+					$content .= '<a href="' . $url[ self::PREFIX . 'url' ] . '" target="_new">';
+					$content .= $url[ self::PREFIX . 'url_name' ];
+					$content .= '</a><br />' . PHP_EOL;
+				}
+				$content .= '</p>' . PHP_EOL;
+			}
+		}
 		return $content;
 	}
 
