@@ -26,6 +26,7 @@ class Evans_Movie {
 		// Filters for the front page
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
 		add_filter( 'the_content', array( $this, 'single_movie_meta' ) );
+		add_filter( 'the_content', array( $this, 'movie_list' ) );
 
 		/**
 		 * Rewrite stuff
@@ -34,6 +35,8 @@ class Evans_Movie {
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 
 		add_filter( 'template_include', array( $this, 'template_selector' ) );
+
+		add_action( 'pre_get_posts', array( $this, 'movie_list_query' ) );
 
 	}
 
@@ -308,7 +311,8 @@ class Evans_Movie {
 	 * Add the rewrite rule(s) that we want.
 	 */
 	public static function add_rewrites() {
-		add_rewrite_rule( '^movies/?$', 'index.php?upcoming_movies=true', 'top' );
+		add_rewrite_rule( '^movies/?$', 'index.php?movie_year=' . date( 'Y' ), 'top' );
+		add_rewrite_rule( '^movies/([0-9]{4})/?$', 'index.php?movie_year=$matches[1]', 'top' );
 	}
 
 	/**
@@ -317,18 +321,65 @@ class Evans_Movie {
 	 * @return array The filtered query variables.
 	 */
 	public static function add_query_vars( $vars ) {
-		$vars[] = 'upcoming_movies';
+		$vars[] = 'movie_year';
 		return $vars;
+	}
+
+	/**
+	 * Handle the movies listing.
+	 */
+	function movie_list( $content ) {
+		$year = get_query_var( 'movie_year' );
+		if( $year && is_numeric( absint( $year ) ) ) {
+			$content = "Movies in $year";
+		}
+		return $content;
+	}
+
+	function movie_list_query( $query ) {
+		$movie_year = absint( get_query_var( 'movie_year' ) );
+		if( 0 !== $movie_year ) {
+			$year_start_epoch = strtotime( $movie_year . '-Jan-01 00:00:00' );
+			$year_end_epoch = strtotime( $movie_year . '-Dec-31 23:59:59' );
+			$query->set( 'post_type', self::POST_TYPE );
+			$meta_query = array(
+				'relation' => 'AND',
+				array(
+					'key' => self::PREFIX . 'showtime',
+					'value' => $year_start_epoch,
+					'compare' => '>=',
+					'type' => 'NUMERIC',
+				),
+				array(
+					'key' => self::PREFIX . 'showtime',
+					'value' => $year_end_epoch,
+					'compare' => '<=',
+					'type' => 'NUMERIC',
+				),
+			);
+			$query->set( 'meta_query', $meta_query );
+			$query->set( 'posts_per_page', 100 );
+		}
+
 	}
 
 	/**
 	 * Select the appropriate template.
 	 */
 	function template_selector( $template ) {
-		if ( get_query_var( 'upcoming_movies' ) ) {
+		if ( get_query_var( 'all_movies' ) ) {
 			$template = plugin_dir_path( __FILE__ ) . '/templates/page-upcoming.php';
 		}
+		if( get_query_var( 'movie_year' ) ) {
+			$template = plugin_dir_path( __FILE__ ) . '/templates/page-movies-by-year.php';
+		}
 		return $template;
+	}
+
+	public static function all_movies_query( $query ) {
+		if( $query->is_main_query() && 'true' === $query->query['all_movies'] ) {
+			$query->set( 'post_type', self::POST_TYPE );
+		}
 	}
 
 	/**
@@ -408,6 +459,19 @@ class Evans_Movie {
 
 		return $movies;
 
+	}
+
+	/**
+	 * Helper monkeys
+	 */
+
+	public static function __sort_by_date_asc( $a, $b ) {
+		$a_dates = get_post_meta( $a->ID, Evans_Movie::PREFIX . 'showtime' );
+		$b_dates = get_post_meta( $b->ID, Evans_Movie::PREFIX . 'showtime' );
+		if( $a_dates[0] === $b_dates[0] ) {
+			return 0;
+		}
+		return ($a_dates[0] > $b_dates[0] ) ? 1 : -1;
 	}
 
 }
