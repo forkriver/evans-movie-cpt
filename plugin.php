@@ -1,9 +1,15 @@
 <?php
 /**
+ * Plugin loader file.
+ *
+ * @package evans-movie-cpt
+ */
+ 
+/**
  * Plugin Name: Evans Movie Post Type
  * Description: Provide the post type and associated tools for the Evans site
  * Plugin URI:  http://patj.ca/wp/plugins/evans-movie-cpt
- * Version:     1.0
+ * Version:     1.0.0
  * Author:      Patrick Johanneson
  * Author URI:  http://patrickjohanneson.com/
  * License:     GPL2
