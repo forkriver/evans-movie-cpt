@@ -16,7 +16,7 @@ class Evans_Movie {
 	 */
 	function __construct() {
 		add_action( 'init', array( $this, 'create_cpt' ) );
-		add_action( 'init', array( $this, 'cmb_init' ), PHP_INT_MAX );
+		add_action( 'init', array( $this, 'cmb_init' ), 0 );
 		add_action( 'init', array( $this, 'fix_showtimes' ) );
 
 		add_action( 'after_setup_theme', array( $this, 'featured_image_size' ) );
@@ -85,6 +85,9 @@ class Evans_Movie {
 			'rewrite'             => $rewrite,
 		);
 		register_post_type( self::POST_TYPE, $args );
+
+		// Tags
+		register_taxonomy_for_object_type( 'post_tag', self::POST_TYPE );
 
 	}
 
@@ -410,6 +413,8 @@ class Evans_Movie {
 				'value' => $time,
 				'compare' => '>=',
 			),
+			// Exclude the films tagged with "Film Festival"
+			'tag__not_in' => array( self::get_ff_tag_id() ),
 		);
 		$movie = new WP_Query( $args );
 
@@ -451,6 +456,8 @@ class Evans_Movie {
 				'value' => $time,
 				'compare' => '>',
 			),	
+			// Exclude the films tagged with "Film Festival"
+			'tag__not_in' => array( self::get_ff_tag_id() ),
 		);
 		if( isset( $exclude_id ) && is_numeric( $exclude_id ) ) {
 			$args['post__not_in'] = array( $exclude_id );
@@ -472,6 +479,14 @@ class Evans_Movie {
 			return 0;
 		}
 		return ($a_dates[0] > $b_dates[0] ) ? 1 : -1;
+	}
+
+	public static function get_ff_tag_id() {
+		$term = get_term_by( 'name', 'Film Festival', 'post_tag' );
+		if ( ! $term ) {
+			return null;
+		}
+		return absint( $term->term_id );
 	}
 
 }
