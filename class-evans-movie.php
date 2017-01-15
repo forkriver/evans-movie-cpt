@@ -1,7 +1,14 @@
 <?php
+/**
+ * Class file for the Evans Movie.
+ *
+ * @package evans-movie-cpt
+ */
 
 /**
- * The Evans_Movie object.
+ * The Evans_Movie class.
+ *
+ * @since 1.0.0
  */
 class Evans_Movie {
 
@@ -21,16 +28,14 @@ class Evans_Movie {
 
 		add_action( 'after_setup_theme', array( $this, 'featured_image_size' ) );
 
-		add_filter( 'cmb_meta_boxes', array( $this, 'metaboxes' ) );
+		add_action( 'cmb2_admin_init', array( $this, 'movie_metabox' ) );
 
-		// Filters for the front page
+		// Filters for the front page.
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
 		add_filter( 'the_content', array( $this, 'single_movie_meta' ) );
 		add_filter( 'the_content', array( $this, 'movie_list' ) );
 
-		/**
-		 * Rewrite stuff
-		 */
+		// Rewrites.
 		add_action( 'init', array( $this, 'add_rewrites' ) );
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 
@@ -41,7 +46,10 @@ class Evans_Movie {
 	}
 
 	/**
-	 * Create the custom post type.
+	 * Creates the custom post type.
+	 *
+	 * @return void
+	 * @since 1.0.0
 	 */
 	function create_cpt() {
 
