@@ -28,7 +28,8 @@ class Evans_Movie {
 
 		add_action( 'after_setup_theme', array( $this, 'featured_image_size' ) );
 
-		add_action( 'cmb2_admin_init', array( $this, 'movie_metabox' ) );
+		// add_action( 'cmb2_admin_init', array( $this, 'movie_metabox' ) );
+		add_action( 'cmb_init', array( $this, 'metaboxes' ) );
 
 		// Filters for the front page.
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
