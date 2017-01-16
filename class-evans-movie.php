@@ -35,7 +35,7 @@ class Evans_Movie {
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
 		add_filter( 'the_content', array( $this, 'single_movie_meta' ) );
 		add_filter( 'the_content', array( $this, 'movie_list' ) );
-		add_filter( 'the_content', array( $this, 'midnighter' ) );
+		add_filter( 'the_content', array( $this, 'midnighter' ), 20 );
 
 		// Rewrites.
 		add_action( 'init', array( $this, 'add_rewrites' ) );
@@ -434,7 +434,7 @@ class Evans_Movie {
 	}
 
 	function midnighter( $content ) {
-		return str_replace( '11:59 pm', 'midnight', $content );
+		return str_replace( '11:59 pm', 'at midnight', $content );
 	}
 	
 	/**
