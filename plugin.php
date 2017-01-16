@@ -18,6 +18,7 @@
  * Text Domain: evans-cpt
  */
 require_once( 'class-evans-movie.php' );
+require_once( 'class-evans-film-festival.php' );
 
 /**
  * Create CPT and flush the rewrite rules.

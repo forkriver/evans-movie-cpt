@@ -371,6 +371,7 @@ class Evans_Movie {
 			);
 			$query->set( 'meta_query', $meta_query );
 			$query->set( 'posts_per_page', 100 );
+			$query->set( 'tag__not_in', self::get_ff_tag_id() );
 		}
 
 	}
