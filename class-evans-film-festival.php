@@ -36,11 +36,11 @@ class Evans_Film_Festival {
 			'year' => date( 'Y', strtotime( $post->post_date ) ),
 		);
 		$atts = shortcode_atts( $defaults, $_atts );
-		// Get the movies
+		// Get the movies.
 		$time = strtotime( '01-Jan-' . $atts['year'] );
 		$args = array(
 			'post_type' => Evans_Movie::POST_TYPE,
-			// sort by the showtime meta value
+			// Sort by the showtime meta value.
 			'orderby' => 'meta_value_num',
 			'order' => 'ASC',
 			'meta_key' => Evans_Movie::PREFIX . 'showtime',
@@ -52,13 +52,13 @@ class Evans_Film_Festival {
 				'compare' => '>',
 			),
 			'tag__in' => array( Evans_Movie::get_ff_tag_id() ),
-			'numberposts' => 100,
+			'posts_per_page' => 100,
 
 		);
 		$ff = new WP_Query( $args );
 		$content = '';
 		if ( $ff->have_posts() ) {
-			while( $ff->have_posts() ) {
+			while ( $ff->have_posts() ) {
 				$ff->the_post();
 				$content .= date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), get_post_meta( get_the_ID(), Evans_Movie::PREFIX . 'showtime', true ) );
 				$content .= '&mdash;';
