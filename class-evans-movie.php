@@ -157,7 +157,6 @@ class Evans_Movie {
 				'name' => __( 'Showtimes', 'evans-cpt' ),
 				'type' => 'datetime_unix',
 				'repeatable' => true,
-				'repeatable_max' => 5,
 				'sortable' => true,
 			),
 
