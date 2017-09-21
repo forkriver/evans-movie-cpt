@@ -116,6 +116,7 @@ class Evans_Movie {
 	/**
 	 * Initializes the Custom Meta Box library.
 	 *
+	 * @todo update to use CMB2.
 	 * @return void
 	 * @since 1.0.0
 	 */
@@ -150,6 +151,22 @@ class Evans_Movie {
 			),
 
 		);
+
+		$rating_group = array(
+			array(
+				'id' => $prefix . 'rating',
+				'name' => __( 'Rating', 'evans-cpt' ),
+				'type' => 'text',
+				'cols' => 2,
+			),
+			array(
+				'id' => $prefix . 'rating_detail',
+				'name' => __( 'Detail', 'evans-cpt' ),
+				'type' => 'textarea',
+				'cols' => 10,
+			),
+		);
+
 		$fields = array(
 			// Showtime(s).
 			array(
@@ -158,6 +175,14 @@ class Evans_Movie {
 				'type' => 'datetime_unix',
 				'repeatable' => true,
 				'sortable' => true,
+			),
+
+			// Rating & comments.
+			array(
+				'id' => $prefix . 'rating',
+				'name' => __( 'Rating', 'evans-cpt' ),
+				'type' => 'group',
+				'fields' => $rating_group,
 			),
 
 			// URL group (official, IMDB, ... ).
@@ -315,6 +340,18 @@ class Evans_Movie {
 	function single_movie_meta( $content ) {
 		if ( is_singular( self::POST_TYPE ) ) {
 			global $post;
+			$single = true;
+
+			// Gets the rating.
+			$rating = get_post_meta( $post->ID, self::PREFIX . 'rating', $single );
+			if ( ! empty( $rating ) ) {
+				$content .= '<p><em>This film is rated <strong>' . $rating[ self::PREFIX . 'rating' ];
+				if ( ! empty( $rating[ self::PREFIX . 'rating_detail' ] ) ) {
+					$content .= '&mdash;' . $rating[ self::PREFIX . 'rating_detail' ];
+				}
+				$content .= '.</strong></em></p>';
+			}
+
 			// Gets the URLs.
 			$urls = get_post_meta( $post->ID, self::PREFIX . 'url' );
 			if ( $urls ) {
