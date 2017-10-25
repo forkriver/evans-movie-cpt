@@ -34,8 +34,10 @@ class Evans_Movie {
 		// Content filters.
 		add_filter( 'the_content', array( $this, 'front_page_content' ) );
 		add_filter( 'the_content', array( $this, 'single_movie_meta' ) );
-		add_filter( 'the_content', array( $this, 'movie_list' ) );
 		add_filter( 'the_content', array( $this, 'midnighter' ), 20 );
+
+		// Title filters.
+		add_filter( 'the_title', array( $this, 'movie_list_title' ) );
 
 		// Rewrites.
 		add_action( 'init', array( $this, 'add_rewrites' ) );
@@ -379,7 +381,7 @@ class Evans_Movie {
 	 * @since 1.0.0
 	 */
 	public static function add_rewrites() {
-		add_rewrite_rule( '^movies/?$', 'index.php?movie_year=' . date( 'Y' ), 'top' );
+		add_rewrite_rule( '^movies/?$', 'index.php?movie_year=upcoming', 'top' );
 		add_rewrite_rule( '^movies/([0-9]{4})/?$', 'index.php?movie_year=$matches[1]', 'top' );
 	}
 
@@ -396,18 +398,24 @@ class Evans_Movie {
 	}
 
 	/**
-	 * Handle the movies listing.
+	 * Filters the title of the Movie List page.
 	 *
-	 * @param string $content The page content.
-	 * @return string The filtered content.
+	 * @param string $title The title.
+	 * @return string The filtered title.
 	 * @since 1.0.0
 	 */
-	function movie_list( $content ) {
+	function movie_list_title( $title ) {
 		$year = get_query_var( 'movie_year' );
-		if ( $year && is_numeric( absint( $year ) ) ) {
-			$content = "Movies in $year";
+		if ( ! empty( $year ) ) {
+			if ( 'upcoming' === $year ) {
+				return 'Upcoming Movies';
+			}
+			$year = absint( $year );
+			if ( is_numeric( $year ) && 0 !== $year ) {
+				$title = "Movies in $year";
+			}
 		}
-		return $content;
+		return $title;
 	}
 
 	/**
@@ -418,10 +426,16 @@ class Evans_Movie {
 	 * @since 1.0.0
 	 */
 	function movie_list_query( $query ) {
-		$movie_year = absint( get_query_var( 'movie_year' ) );
-		if ( 0 !== $movie_year ) {
+		$movie_year = get_query_var( 'movie_year' );
+		if ( 'upcoming' === $movie_year ) {
+			$year_start_epoch = time();
+			$year_end_epoch = strtotime( date( 'Y' ) . '-Dec-31 23:59:59' );
+		} else {
+			$movie_year = absint( $movie_year );
 			$year_start_epoch = strtotime( $movie_year . '-Jan-01 00:00:00' );
 			$year_end_epoch = strtotime( $movie_year . '-Dec-31 23:59:59' );
+		}
+		if ( 'upcoming' === $movie_year || 0 !== $movie_year ) {
 			$query->set( 'post_type', self::POST_TYPE );
 			$meta_query = array(
 				'relation' => 'AND',

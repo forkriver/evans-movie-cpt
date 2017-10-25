@@ -10,7 +10,7 @@ global $wp_query;
 $movies = $wp_query->posts;
 usort( $movies, array( 'Evans_Movie', '_sort_by_date_asc' ) );
 echo( '<div class="movie-year-list">' . PHP_EOL );
-echo( '<h1>Movies in ' . get_query_var( 'movie_year' ) . '</h1>' . PHP_EOL );
+echo( '<h1>' . get_the_title() . '</h1>' . PHP_EOL );
 $prev_month = 0;
 $month_links = '';
 $content = '';
