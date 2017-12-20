@@ -13,6 +13,7 @@ echo( '<div class="movie-year-list">' . PHP_EOL );
 echo( '<h1>' . get_the_title() . '</h1>' . PHP_EOL );
 $prev_month = 0;
 $month_links = '';
+$month_links_count = 0;
 $content = '';
 foreach( $movies as $m ) {
 	$dates = get_post_meta( $m->ID, Evans_Movie::PREFIX . 'showtime' );
@@ -20,6 +21,7 @@ foreach( $movies as $m ) {
 	if( absint( $month) !== $prev_month ) {
 		$content .= '<h2><a name="' . strtolower( date( 'M', $dates[0] ) ) . '"></a>' . date( 'F', $dates[0] ) . '</h2>' . PHP_EOL;
 		$month_links .= '<a href="#' . strtolower( date( 'M', $dates[0] ) ) . '">' . date( 'F', $dates[0] ) . '</a> | ';
+		$month_links_count++;
 		$prev_month = absint( date( 'm', $dates[0] ) );
 	}
 	$content .= '<p>' . PHP_EOL .
@@ -35,7 +37,9 @@ foreach( $movies as $m ) {
 				'</div> <!-- .movie-dates -->' . PHP_EOL .
 				'</p>' . PHP_EOL;
 }
-echo( substr( $month_links, 0, strrpos( $month_links, ' |' ) ) . PHP_EOL );
+if ( $month_links_count > 1 ) {
+	echo( substr( $month_links, 0, strrpos( $month_links, ' |' ) ) . PHP_EOL );
+}
 echo( $content );
 echo( '</div> <!-- .movie-year-list -->' . PHP_EOL );
 
