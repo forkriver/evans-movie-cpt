@@ -259,7 +259,7 @@ class Evans_Movie {
 			Evans_Movie::POST_TYPE,
 			Evans_Movie::PREFIX . 'showtime',
 			array(
-				'get_callback' => array( $this, 'showtime_get_cb' ),
+				'get_callback' => array( $this, 'meta_get_cb' ),
 			)
 		);
 	}
@@ -273,7 +273,7 @@ class Evans_Movie {
 	 * @return array                      The metadata.
 	 * @since 1.0.0
 	 */
-	function showtime_get_cb( $object, $field_name, $request ) {
+	function meta_get_cb( $object, $field_name, $request ) {
 		error_log( print_r( $object, true ) );
 		error_log( print_r( $field_name, true ) );
 		error_log( print_r( $request, true ) );
