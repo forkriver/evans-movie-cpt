@@ -23,9 +23,10 @@ class Evans_Movie {
 	 * @since 1.0.0
 	 */
 	function __construct() {
-		add_action( 'init', array( $this, 'create_cpt' ) );
-		add_action( 'init', array( $this, 'cmb_init' ), 0 );
+		add_action( 'init', array( $this, 'create_cpt' ), 0 );
+		add_action( 'init', array( $this, 'cmb_init' ), 1 );
 		add_action( 'init', array( $this, 'fix_showtimes' ) );
+		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
 
 		add_action( 'after_setup_theme', array( $this, 'featured_image_size' ) );
 
@@ -95,6 +96,8 @@ class Evans_Movie {
 			'publicly_queryable'  => true,
 			'capability_type'     => 'page',
 			'rewrite'             => $rewrite,
+			'show_in_rest'        => true,
+			'rest_base'           => 'movies',
 		);
 		register_post_type( self::POST_TYPE, $args );
 
@@ -243,6 +246,38 @@ class Evans_Movie {
 		}
 		update_option( Evans_Movie::PREFIX . 'dates_fixed', time() );
 
+	}
+
+	/**
+	 * Rgisters the start date and end date as REST API fields.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	function register_fields() {
+		register_rest_field(
+			Evans_Movie::POST_TYPE,
+			Evans_Movie::PREFIX . 'showtime',
+			array(
+				'get_callback' => array( $this, 'showtime_get_cb' ),
+			)
+		);
+	}
+
+	/**
+	 * Callback for the start/end date field registration.
+	 *
+	 * @param array           $object     The post array.
+	 * @param string          $field_name The desired field name.
+	 * @param WP_REST_Request $request    The API request.
+	 * @return array                      The metadata.
+	 * @since 1.0.0
+	 */
+	function showtime_get_cb( $object, $field_name, $request ) {
+		error_log( print_r( $object, true ) );
+		error_log( print_r( $field_name, true ) );
+		error_log( print_r( $request, true ) );
+		return get_post_meta( $object['id'], $field_name );
 	}
 
 	/**
