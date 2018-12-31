@@ -9,6 +9,12 @@ get_header();
 echo( '<h1>Upcoming Movies</h1>' . PHP_EOL );
 
 $movies = Evans_Movie::get_future_movies( time(), -1 );
+// Get next year's movies if there aren't any in the current year.
+if ( ! $movies->have_posts() ) {
+	$next_year = intval( date( 'Y' ) ) + 1;
+	$time = strtotime( "January 1, $next_year" );
+	$movies = Evans_Movie::get_future_movies( $time, -1 );
+}
 if( $movies->have_posts() ) {
 	$thumbnail_attrs = array(
 		'align' => 'left',
