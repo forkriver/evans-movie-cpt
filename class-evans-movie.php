@@ -381,7 +381,7 @@ class Evans_Movie {
 
 			// Gets the rating.
 			$rating = get_post_meta( $post->ID, self::PREFIX . 'rating', $single );
-			if ( ! empty( $rating ) ) {
+			if ( ! $this->empty_rating( $rating ) ) {
 				$content .= '<p><em>This film is rated <strong>' . $rating[ self::PREFIX . 'rating' ];
 				if ( ! empty( $rating[ self::PREFIX . 'rating_detail' ] ) ) {
 					$content .= '&mdash;' . $rating[ self::PREFIX . 'rating_detail' ];
@@ -624,7 +624,7 @@ class Evans_Movie {
 	}
 
 	/**
-	 * Helper monkeys
+	 * Helper monkeys.
 	 */
 
 	/**
@@ -656,6 +656,29 @@ class Evans_Movie {
 			return null;
 		}
 		return absint( $term->term_id );
+	}
+
+	/**
+	 * Checks to see if the movie's rating is empty.
+	 *
+	 * @param  mixed $rating The movie's rating. String or array of strings.
+	 * @return boolean       True if the rating is empty, false otherwise.
+	 * @since  1.0.0
+	 */
+	public function empty_rating( $rating ) {
+		if ( is_string( $rating ) ) {
+			return empty( $rating );
+		}
+
+		if ( is_array( $rating ) ) {
+			foreach ( $rating as $key => $value ) {
+				if ( ! empty( $value ) ) {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 }
