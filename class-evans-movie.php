@@ -215,7 +215,7 @@ class Evans_Movie {
 	}
 
 	/**
-	 * Switches any showtimes to time() format.
+	 * Switches any showtimes to current_time( 'timestamp' ) format.
 	 *
 	 * @return void
 	 * @since 1.0.0
@@ -244,7 +244,7 @@ class Evans_Movie {
 				}
 			}
 		}
-		update_option( Evans_Movie::PREFIX . 'dates_fixed', time() );
+		update_option( Evans_Movie::PREFIX . 'dates_fixed', current_time( 'timestamp' ) );
 
 	}
 
@@ -312,7 +312,7 @@ class Evans_Movie {
 					sort( $times );
 					$content .= '<p class="times">' . PHP_EOL;
 					foreach ( $times as $time ) {
-						$content .= date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $time );
+						$content .= gmdate( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $time );
 						if ( end( $times ) != $time ) {
 							$content .= ' | ';
 						}
@@ -322,7 +322,7 @@ class Evans_Movie {
 				}
 
 				if ( ! $last_show ) {
-					$last_show = time();
+					$last_show = current_time( 'timestamp' );
 				}
 
 				$content .= '</div><!-- .showtimes -->' . PHP_EOL;
@@ -348,10 +348,10 @@ class Evans_Movie {
 						if ( $dates ) {
 							sort( $dates );
 							$content .= '<p>';
-							$content .= date( get_option( 'date_format' ), $dates[0] );
+							$content .= gmdate( get_option( 'date_format' ), $dates[0] );
 							if ( end( $dates ) !== $dates[0] ) {
 								$content .= '&ndash;';
-								$content .= date( get_option( 'date_format' ), end( $dates ) );
+								$content .= gmdate( get_option( 'date_format' ), end( $dates ) );
 							}
 							$content .= '</p>' . PHP_EOL;
 						}
@@ -463,8 +463,8 @@ class Evans_Movie {
 	function movie_list_query( $query ) {
 		$movie_year = get_query_var( 'movie_year' );
 		if ( 'upcoming' === $movie_year ) {
-			$year_start_epoch = time();
-			$year_end_epoch = strtotime( date( 'Y' ) . '-Dec-31 23:59:59' );
+			$year_start_epoch = current_time( 'timestamp' );
+			$year_end_epoch = strtotime( gmdate( 'Y' ) . '-Dec-31 23:59:59' );
 		} else {
 			$movie_year = absint( $movie_year );
 			$year_start_epoch = strtotime( $movie_year . '-Jan-01 00:00:00' );
@@ -534,7 +534,7 @@ class Evans_Movie {
 	public static function get_next_movie( $time = null ) {
 
 		if ( ! is_numeric( $time ) ) {
-			$time = time();
+			$time = current_time( 'timestamp' );
 		}
 
 		// Gets the next upcoming movie.
@@ -585,7 +585,7 @@ class Evans_Movie {
 	public static function get_future_movies( $time = null, $number_of_movies = 3 ) {
 
 		if ( ! is_numeric( $time ) ) {
-			$time = time();
+			$time = current_time( 'timestamp' );
 		}
 
 		// Gets the next movie (displayed in the big box) if we're on the front page.
