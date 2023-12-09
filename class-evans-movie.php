@@ -464,7 +464,7 @@ class Evans_Movie {
 		$movie_year = get_query_var( 'movie_year' );
 		if ( 'upcoming' === $movie_year ) {
 			$year_start_epoch = current_time( 'timestamp' );
-			$year_end_epoch = strtotime( gmdate( 'Y' ) . '-Dec-31 23:59:59' );
+			$year_end_epoch = strtotime( gmdate( 'Y' ) + 1 . '-Dec-31 23:59:59' );
 		} else {
 			$movie_year = absint( $movie_year );
 			$year_start_epoch = strtotime( $movie_year . '-Jan-01 00:00:00' );
